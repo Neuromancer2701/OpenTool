@@ -37,10 +37,12 @@ public:
 	static const int Cell_Id_size = 4;
 	static const int Channel_Id_size = 2;
 	static const int Controller_Name_size = 25;
+	static const int Rev1_size = Cell_Id_size + Channel_Id_size + Controller_Name_size + (3 * Index_size);
 
 	//Revision 2
 	string Supplier_code;
 	static const int Supplier_code_size = 3;
+	static const int Rev2_size = Rev1_size + Supplier_code_size + Index_size;
 
 	//Revision 3
 	string Open_Protocol_version;
@@ -50,6 +52,7 @@ public:
 	static const int Open_Protocol_version_size = 19;
 	static const int Controller_software_version_size = 19;
 	static const int Tool_software_version_size = 19;
+	static const int Rev3_size = Rev2_size + Open_Protocol_version_size + Controller_software_version_size + Tool_software_version_size + (3 * Index_size);
 };
 
 #endif /* MID0002_H_ */

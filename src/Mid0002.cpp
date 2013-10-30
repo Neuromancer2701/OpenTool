@@ -11,7 +11,7 @@
 
 Mid_0002::Mid_0002() {
 	// TODO Auto-generated constructor stub
-	Length = 20;
+	Length = HeaderTotalLength;
 	Number = CommunicationStartAcknowledge;
 }
 
@@ -50,18 +50,24 @@ void Mid_0002::BuildRevision3()
 
 void Mid_0002::PackupMid0002()
 {
-	Packup();
+
 
 	switch(Revision)
 	{
 		default:
 		case Revision1:
+			Length += Rev1_size;
+			Packup();
 			BuildRevision1();
 			break;
 		case Revision2:
+			Length += Rev2_size;
+			Packup();
 			BuildRevision2();
 			break;
 		case Revision3:
+			Length += Rev3_size;
+			Packup();
 			BuildRevision3();
 			break;
 	}

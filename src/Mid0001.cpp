@@ -9,7 +9,7 @@
 
 Mid_0001::Mid_0001() {
 	// TODO Auto-generated constructor stub
-	Length = 20;
+	Length = HeaderTotalLength;
 	Number = CommunicationStart;
 }
 
