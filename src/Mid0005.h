@@ -14,6 +14,12 @@ class Mid_0005: public Header {
 public:
 	Mid_0005();
 	virtual ~Mid_0005();
+
+	MID_Number Number;
+	const static char Number_Size = 4;
+
+	void BuildMid0005();
+	void ParseMid0005();
 };
 
 #endif /* MID0005_H_ */

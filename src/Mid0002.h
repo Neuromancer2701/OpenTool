@@ -9,9 +9,6 @@
 #define MID0002_H_
 
 #include "Header.h"
-#include <string>
-
-using std::string;
 
 class Mid_0002: public Header {
 public:

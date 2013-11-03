@@ -8,7 +8,6 @@
 #include "Mid0003.h"
 
 Mid_0003::Mid_0003() {
-	// TODO Auto-generated constructor stub
 	Length = HeaderTotalLength;
 	Number = CommunicationStop;
 }

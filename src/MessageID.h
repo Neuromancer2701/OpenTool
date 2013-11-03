@@ -9,7 +9,9 @@
 #define MESSAGEID_H_
 
 #include <sstream>
+#include <string>
 
+using std::string;
 using std::stringstream;
 
 class MessageID {
@@ -21,6 +23,8 @@ public:
 
 	stringstream InputStream;
 	stringstream OutputStream;
+	string GetRawOutputString(){return OutputStream.str();}
+	void SetRawInputString(const string input){InputStream << input;}
 
 	static const int Index_size = 2;
 	enum MID_Number
