@@ -1,0 +1,50 @@
+20:20:09 **** Incremental Build of configuration Debug for project OpenTool ****
+make all 
+Building file: /home/countzero/repos/OpenTool/src/Header.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Header.d" -MT"src/Header.d" -o "src/Header.o" "/home/countzero/repos/OpenTool/src/Header.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Header.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/MessageID.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/MessageID.d" -MT"src/MessageID.d" -o "src/MessageID.o" "/home/countzero/repos/OpenTool/src/MessageID.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/MessageID.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid0001.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid0001.d" -MT"src/Mid0001.d" -o "src/Mid0001.o" "/home/countzero/repos/OpenTool/src/Mid0001.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid0001.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid0002.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid0002.d" -MT"src/Mid0002.d" -o "src/Mid0002.o" "/home/countzero/repos/OpenTool/src/Mid0002.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid0002.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid0003.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid0003.d" -MT"src/Mid0003.d" -o "src/Mid0003.o" "/home/countzero/repos/OpenTool/src/Mid0003.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid0003.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid0004.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid0004.d" -MT"src/Mid0004.d" -o "src/Mid0004.o" "/home/countzero/repos/OpenTool/src/Mid0004.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid0004.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid0005.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid0005.d" -MT"src/Mid0005.d" -o "src/Mid0005.o" "/home/countzero/repos/OpenTool/src/Mid0005.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid0005.cpp
+ 
+Building file: /home/countzero/repos/OpenTool/src/Mid9999.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -fPIC -MMD -MP -MF"src/Mid9999.d" -MT"src/Mid9999.d" -o "src/Mid9999.o" "/home/countzero/repos/OpenTool/src/Mid9999.cpp"
+Finished building: /home/countzero/repos/OpenTool/src/Mid9999.cpp
+ 
+Building target: libOpenTool.so
+Invoking: GCC C++ Linker
+g++ -shared -o "libOpenTool.so"  ./src/Header.o ./src/MessageID.o ./src/Mid0001.o ./src/Mid0002.o ./src/Mid0003.o ./src/Mid0004.o ./src/Mid0005.o ./src/Mid9999.o   
+Finished building target: libOpenTool.so
+ 
+
+20:20:16 Build Finished (took 6s.822ms)
+
