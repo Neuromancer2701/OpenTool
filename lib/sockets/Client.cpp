@@ -23,13 +23,25 @@ Client::Client(string _ip_address,unsigned short _port) {
 	status = Connection_Status::UNKNOWN;
 	retries = 0;
 }
+Client::Client() {
+
+	ip_address = "";
+	port = 0;
+	client_fd = -1;
+	status = Connection_Status::UNKNOWN;
+	retries = 0;
+}
+void Client::init(string _ip_address,unsigned short _port){
+	ip_address = _ip_address;
+	port = _port;
+}
+
 
 Client::~Client() {
 
 	if(client_fd > 0)
 		close(client_fd);
 }
-
 Connection_Status Client::Connect()
 {
 
@@ -130,7 +142,6 @@ Connection_Status Client::Disconnect()
 
 	return status;
 }
-
 Error Client::setBlockingMode(Blocking_Mode mode)
 {
 	Error status = Error::UNKNOWN;
@@ -166,7 +177,6 @@ Error Client::setBlockingMode(Blocking_Mode mode)
 
 	return status;
 }
-
 Error Client::Read(vector<char>& buffer)
 {
 	Error status = Error::UNKNOWN;

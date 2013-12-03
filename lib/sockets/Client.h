@@ -31,7 +31,9 @@ static const int MAX_PACKET_LENGTH = 10000;
 class Client {
 public:
 	Client(string _ip_address,unsigned short _port);
+	Client();
 	virtual ~Client();
+	void init(string _ip_address,unsigned short _port);
 	Connection_Status Connect();
 	Connection_Status Disconnect();
 	Error Read(vector<char>& buffer);
