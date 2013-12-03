@@ -12,10 +12,25 @@
 
 class Server {
 public:
+	Server(int _port);
 	Server();
+	void Listen();
 	virtual ~Server();
 
-	Client client_list[6];
+
+
+	static const int MAX_CONNECTIONS = 6;
+	Client client_list[MAX_CONNECTIONS];
+protected:
+	int server_fd;				//File Descriptor for client connection
+	int port;
+
+	Connection_Status  status;
+	Error			   error_state;
+	Error setBlockingMode(Blocking_Mode mode);
+
+private:
+	static const int MAX_EVENTS = 16;
 
 };
 

@@ -23,7 +23,11 @@ enum class Error {
 					FCNTL_SET 	= 3,
 					FCNTL_GET 	= 4,
 					READ		= 5,
-					WRITE		= 6
+					WRITE		= 6,
+					SOCKET      = 7,
+					BIND	    = 8,
+					ACCEPT		= 9,
+					LISTEN		= 10
 				  };
 
 static const int MAX_PACKET_LENGTH = 10000;
