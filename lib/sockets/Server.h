@@ -20,6 +20,7 @@ public:
 
 
 	static const int MAX_CONNECTIONS = 6;
+	int active_connections = 0;
 	Client client_list[MAX_CONNECTIONS];
 protected:
 	int server_fd;				//File Descriptor for client connection

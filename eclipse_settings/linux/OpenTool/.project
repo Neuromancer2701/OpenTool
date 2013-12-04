@@ -28,12 +28,12 @@
 		<link>
 			<name>sockets</name>
 			<type>2</type>
-			<location>/home/SK1033/repos/OpenTool/lib/sockets</location>
+			<location>/home/sk1033/repos/OpenTool/lib/sockets</location>
 		</link>
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<location>/home/SK1033/repos/OpenTool/src</location>
+			<location>/home/sk1033/repos/OpenTool/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>

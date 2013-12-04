@@ -17,6 +17,15 @@
 #include <cstdio>
 #include <cstring>
 
+
+#define debug 1
+
+#if debug
+#define DebPrint(fmt, args...) printf(fmt, ## args)
+#endif
+
+
+
 Server::Server() {
 
 	port = 0;
@@ -47,10 +56,15 @@ Server::Server(int _port)	{
 		else
 		{
 			error_state = setBlockingMode(Blocking_Mode::NonBlock);
+			active_connections = 0;
 			if(error_state != Error::NONE)
 			{
 				perror("server Nonblock failed.");
 				server_fd = -1;
+			}
+			else
+			{
+				DebPrint("Created server object, bind, setblocking mode, Server FD: %d\n ",server_fd);
 			}
 		}
     }
@@ -59,47 +73,57 @@ Server::Server(int _port)	{
 
 Server::~Server() {
 
+	if(server_fd > 0)
+		close(server_fd);
+
+	for(int i = 0;i < MAX_CONNECTIONS; i++)
+	{
+		client_list[i].Disconnect();
+	}
 }
 void Server::Listen() {
 
 	  int event_fd, epoll_status;
-	  int connections = 0;
 	  struct epoll_event event;
 	  struct epoll_event events[MAX_EVENTS];
 
-	if ( listen(server_fd, MAX_CONNECTIONS) != 0 )
-	{
-		perror("socket--listen");
-		error_state = Error::LISTEN;
-		server_fd = -1;
-	}
-	else
-	{
-		event_fd = epoll_create1 (0);
-		if (event_fd == -1)
+	  if(error_state == Error::NONE)
+	  {
+		if ( listen(server_fd, MAX_CONNECTIONS) != 0 )
 		{
-			perror ("epoll_create");
-			error_state = Error::EPOLL_CREATE;
+			perror("socket--listen");
+			error_state = Error::LISTEN;
 			server_fd = -1;
-			return;
 		}
-
-		event.data.fd = server_fd;
-		event.events = EPOLLIN | EPOLLET;
-
-		epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
-		if (epoll_status == -1)
+		else
 		{
-			perror ("epoll_create");
-			error_state = Error::EPOLL_CTL;
-			server_fd = -1;
-			return;
-		}
+			DebPrint("Listening, Server FD: %d\n ",server_fd);
+			event_fd = epoll_create1 (0);
+			if (event_fd == -1)
+			{
+				perror ("epoll_create");
+				error_state = Error::EPOLL_CREATE;
+				server_fd = -1;
+				return;
+			}
 
-		while (1)
-		{
-		    int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
-		    for (int i = 0; i < epoll_events; i++)
+			event.data.fd = server_fd;
+			event.events = EPOLLIN | EPOLLET;
+
+			epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
+			if (epoll_status == -1)
+			{
+				perror ("epoll_create");
+				error_state = Error::EPOLL_CTL;
+				server_fd = -1;
+				return;
+			}
+
+			DebPrint("Waiting for Epoll, Server FD: %d\n ",server_fd);
+			int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
+			DebPrint("Epoll events, %d\n ",epoll_events);
+
+			for (int i = 0; i < epoll_events; i++)
 			{
 				if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
 				{
@@ -110,17 +134,18 @@ void Server::Listen() {
 				}
 				else if(server_fd == events[i].data.fd)
 				{
-					if(connections >= MAX_CONNECTIONS)
+					if(active_connections >= MAX_CONNECTIONS)
 					{
 						break;
 					}
 
-					while (error_state == Error::ACCEPT_DONE)
+					while (error_state != Error::ACCEPT_DONE)
 					{
-						error_state = client_list[connections].Accept(server_fd);
+						DebPrint("Accept\n ");
+						error_state = client_list[active_connections].Accept(server_fd);
 						if(error_state == Error::NONE)
 						{
-							connections++;
+							active_connections++;
 						}
 					}
 				}
@@ -131,7 +156,12 @@ void Server::Listen() {
 				}
 			}
 		}
-	}
+	  }
+	  else
+	  {
+		  perror ("Error unable to listen");
+	  }
+
 }
 
 Error Server::setBlockingMode(Blocking_Mode mode)

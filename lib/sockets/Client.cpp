@@ -18,6 +18,12 @@
 #include <cstdio>
 #include <cstring>
 
+#define debug 1
+
+#if debug
+#define DebPrint(fmt, args...) printf(fmt, ## args)
+#endif
+
 Client::Client(string _ip_address,unsigned short _port) {
 
 	ip_address = _ip_address;
@@ -47,6 +53,7 @@ Error Client::Accept(int _server_fd){
 	char ip_buffer[32];
 	Error error_state = Error::NONE;
 
+	DebPrint("Accepting, Server FD: %d\n ",_server_fd);
 	in_len = sizeof( in_addr);
 	local_client_fd = accept (_server_fd, &in_addr, &in_len);
 	if (local_client_fd == -1)
@@ -71,11 +78,14 @@ Error Client::Accept(int _server_fd){
 		status = Connection_Status::CONNECTED;
 		retries = 0;
 
+		DebPrint("Accepted connections, client FD: %d\n ",client_fd);
+
         int nameinfo = getnameinfo (&in_addr, in_len, ip_buffer, sizeof(ip_buffer), port_buffer, sizeof(port_buffer), NI_NUMERICHOST | NI_NUMERICSERV);
 		if (nameinfo == 0)
 		{
 			ip_address = string(ip_buffer);
 			port = atoi(port_buffer);
+			DebPrint("Client Ip:%s:%d \n ",ip_address.c_str(), port);
 		}
 
 		if(setBlockingMode(Blocking_Mode::NonBlock) != Error::NONE)
