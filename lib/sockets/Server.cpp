@@ -62,7 +62,8 @@ Server::~Server() {
 }
 void Server::Listen() {
 
-	  int event_fd, s;
+	  int event_fd, epoll_status;
+	  int connections = 0;
 	  struct epoll_event event;
 	  struct epoll_event events[MAX_EVENTS];
 
@@ -78,40 +79,58 @@ void Server::Listen() {
 		if (event_fd == -1)
 		{
 			perror ("epoll_create");
-			abort ();
+			error_state = Error::EPOLL_CREATE;
+			server_fd = -1;
+			return;
 		}
 
 		event.data.fd = server_fd;
 		event.events = EPOLLIN | EPOLLET;
 
-		s = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
-		if (s == -1)
+		epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
+		if (epoll_status == -1)
 		{
-		  perror ("epoll_ctl");
-		  abort ();
+			perror ("epoll_create");
+			error_state = Error::EPOLL_CTL;
+			server_fd = -1;
+			return;
 		}
-
 
 		while (1)
 		{
-		      int n, i;
-
-		      n = epoll_wait (event_fd, events, MAX_EVENTS, -1);
-		    for (i = 0; i < n; i++)
+		    int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
+		    for (int i = 0; i < epoll_events; i++)
 			{
-			  if (   (events[i].events & EPOLLERR) ||
-		             (events[i].events & EPOLLHUP) ||
-		           (!(events[i].events & EPOLLIN )  ))
-			    {
-		              /* An error has occured on this fd, or the socket is not
-		                 ready for reading (why were we notified then?) */
-			      fprintf (stderr, "epoll error\n");
-			      close (events[i].data.fd);
-			      continue;
-			    }
+				if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
+				{
+				  perror("epoll wait error\n");
+				  error_state = Error::EPOLL_WAIT;
+				  close (events[i].data.fd);
+
+				}
+				else if(server_fd == events[i].data.fd)
+				{
+					if(connections >= MAX_CONNECTIONS)
+					{
+						break;
+					}
+
+					while (error_state == Error::ACCEPT_DONE)
+					{
+						error_state = client_list[connections].Accept(server_fd);
+						if(error_state == Error::NONE)
+						{
+							connections++;
+						}
+					}
+				}
+				else
+				{
+					perror ("Unknown epoll event");
+					error_state = Error::EPOLL_UNKNOWN;
+				}
 			}
 		}
-
 	}
 }
 

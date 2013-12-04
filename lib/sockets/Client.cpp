@@ -9,9 +9,12 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <sys/unistd.h>
+#include <sys/epoll.h>
 #include <sys/fcntl.h>
 #include <errno.h>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 
@@ -36,6 +39,54 @@ void Client::init(string _ip_address,unsigned short _port){
 	port = _port;
 }
 
+Error Client::Accept(int _server_fd){
+	struct sockaddr in_addr;
+	socklen_t in_len;
+	int local_client_fd;
+	char port_buffer[32];
+	char ip_buffer[32];
+	Error error_state = Error::NONE;
+
+	in_len = sizeof( in_addr);
+	local_client_fd = accept (_server_fd, &in_addr, &in_len);
+	if (local_client_fd == -1)
+	{
+		if ((errno == EAGAIN) || (errno == EWOULDBLOCK))  /* We have processed all incoming connections. */
+		{
+			status = Connection_Status::UNKNOWN;
+			error_state = Error::ACCEPT_DONE;
+			client_fd = -1;
+		}
+		else
+		{
+			perror ("accept");
+			status = Connection_Status::DISCONNECTED;
+			error_state = Error::ACCEPT;
+			client_fd = -1;
+		}
+	}
+	else
+	{
+		client_fd = local_client_fd;
+		status = Connection_Status::CONNECTED;
+		retries = 0;
+
+        int nameinfo = getnameinfo (&in_addr, in_len, ip_buffer, sizeof(ip_buffer), port_buffer, sizeof(port_buffer), NI_NUMERICHOST | NI_NUMERICSERV);
+		if (nameinfo == 0)
+		{
+			ip_address = string(ip_buffer);
+			port = atoi(port_buffer);
+		}
+
+		if(setBlockingMode(Blocking_Mode::NonBlock) != Error::NONE)
+		{
+			perror("Nonblock failed.");
+			status = Connection_Status::DISCONNECTED;
+		}
+	}
+
+	return error_state;
+}
 
 Client::~Client() {
 
@@ -177,6 +228,54 @@ Error Client::setBlockingMode(Blocking_Mode mode)
 
 	return status;
 }
+
+Error Client::EventRead(vector<char>& buffer)
+{
+	Error error_state = Error::UNKNOWN;
+	int event_fd, epoll_status;
+	struct epoll_event event;
+	struct epoll_event events[MAX_EVENTS];
+
+	event_fd = epoll_create1(0);
+	if (event_fd == -1)
+	{
+		perror ("epoll_create");
+		error_state = Error::EPOLL_CREATE;
+	}
+	else
+	{
+		event.data.fd = client_fd;
+		event.events = EPOLLIN | EPOLLET;
+
+		epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, client_fd, &event);
+		if (epoll_status == -1)
+		{
+			perror ("epoll_create");
+			error_state = Error::EPOLL_CTL;
+		}
+		else
+		{
+		    int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
+		    for (int i = 0; i < epoll_events; i++)
+			{
+				if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
+				{
+				  perror("epoll wait error\n");
+				  error_state = Error::EPOLL_WAIT;
+				  close (events[i].data.fd);
+
+				}
+				else if(client_fd == events[i].data.fd)
+				{
+					error_state = Read(buffer);
+				}
+			}
+		}
+	}
+
+	return error_state;
+}
+
 Error Client::Read(vector<char>& buffer)
 {
 	Error status = Error::UNKNOWN;
