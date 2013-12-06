@@ -9,18 +9,19 @@
 #define SERVER_H_
 
 #include "Client.h"
+#include <sys/epoll.h>
 
 class Server {
 public:
 	Server(int _port);
 	Server();
-	void Listen();
+	int Available();
 	virtual ~Server();
 
 
 
 	static const int MAX_CONNECTIONS = 6;
-	int active_connections = 0;
+	int active_connections;
 	Client client_list[MAX_CONNECTIONS];
 protected:
 	int server_fd;				//File Descriptor for client connection
@@ -32,6 +33,9 @@ protected:
 
 private:
 	static const int MAX_EVENTS = 16;
+	int event_fd;
+	struct epoll_event event;
+	struct epoll_event events[MAX_EVENTS];
 
 };
 

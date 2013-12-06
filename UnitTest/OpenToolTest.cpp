@@ -18,18 +18,17 @@ int main() {
 	vector<char>  read_data;
 
 	cout << "This is a Test." << endl;
-	Server Test(15003);
+	Server Test(15005);
 
 	while(listening)
 	{
 		sleep(1);
-		Test.Listen();
+		Test.Available();
 		for(int i = 0;i < Test.active_connections; i++)
 		{
 			Test.client_list[i].EventRead(read_data);
 			string str(read_data.begin(),read_data.end());
 			cout << "Read Data:"<< str << "from client number " << i << endl;
-
 		}
 	}
 

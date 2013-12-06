@@ -12,7 +12,6 @@
 #include <arpa/inet.h>
 #include <sys/unistd.h>
 #include <sys/fcntl.h>
-#include <sys/epoll.h>
 #include <errno.h>
 #include <cstdio>
 #include <cstring>
@@ -33,6 +32,7 @@ Server::Server() {
 
 Server::Server(int _port)	{
 
+	active_connections = 0;
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if( server_fd < 0 )
 	{
@@ -64,7 +64,40 @@ Server::Server(int _port)	{
 			}
 			else
 			{
-				DebPrint("Created server object, bind, setblocking mode, Server FD: %d\n ",server_fd);
+				if ( listen(server_fd, MAX_CONNECTIONS) != 0 )
+				{
+					perror("socket--listen");
+					error_state = Error::LISTEN;
+					server_fd = -1;
+				}
+				else
+				{
+					int epoll_status;
+					event_fd = epoll_create1 (0);
+					if (event_fd == -1)
+					{
+						perror ("epoll_create");
+						error_state = Error::EPOLL_CREATE;
+						server_fd = -1;
+					}
+					else
+					{
+						event.data.fd = server_fd;
+						event.events = EPOLLIN | EPOLLET;
+
+						epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
+						if (epoll_status == -1)
+						{
+							perror ("epoll_create");
+							error_state = Error::EPOLL_CTL;
+							server_fd = -1;
+						}
+						else
+						{
+							DebPrint("Created server object, bind, setblocking mode, Listening, Server FD: %d\n ",server_fd);
+						}
+					}
+				}
 			}
 		}
     }
@@ -81,87 +114,54 @@ Server::~Server() {
 		client_list[i].Disconnect();
 	}
 }
-void Server::Listen() {
+int Server::Available() {
 
-	  int event_fd, epoll_status;
-	  struct epoll_event event;
-	  struct epoll_event events[MAX_EVENTS];
+	if(error_state == Error::NONE)
+	{
+		DebPrint("Waiting for Epoll, Server FD: %d\n ",server_fd);
+		int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
+		DebPrint("Epoll events, %d\n ",epoll_events);
 
-	  if(error_state == Error::NONE)
-	  {
-		if ( listen(server_fd, MAX_CONNECTIONS) != 0 )
+		for (int i = 0; i < epoll_events; i++)
 		{
-			perror("socket--listen");
-			error_state = Error::LISTEN;
-			server_fd = -1;
-		}
-		else
-		{
-			DebPrint("Listening, Server FD: %d\n ",server_fd);
-			event_fd = epoll_create1 (0);
-			if (event_fd == -1)
+			if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
 			{
-				perror ("epoll_create");
-				error_state = Error::EPOLL_CREATE;
-				server_fd = -1;
-				return;
+			  perror("epoll wait error\n");
+			  error_state = Error::EPOLL_WAIT;
+			  close (events[i].data.fd);
+
 			}
-
-			event.data.fd = server_fd;
-			event.events = EPOLLIN | EPOLLET;
-
-			epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
-			if (epoll_status == -1)
+			else if(server_fd == events[i].data.fd)
 			{
-				perror ("epoll_create");
-				error_state = Error::EPOLL_CTL;
-				server_fd = -1;
-				return;
-			}
-
-			DebPrint("Waiting for Epoll, Server FD: %d\n ",server_fd);
-			int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
-			DebPrint("Epoll events, %d\n ",epoll_events);
-
-			for (int i = 0; i < epoll_events; i++)
-			{
-				if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
+				if(active_connections >= MAX_CONNECTIONS)
 				{
-				  perror("epoll wait error\n");
-				  error_state = Error::EPOLL_WAIT;
-				  close (events[i].data.fd);
-
+					break;
 				}
-				else if(server_fd == events[i].data.fd)
-				{
-					if(active_connections >= MAX_CONNECTIONS)
-					{
-						break;
-					}
 
-					while (error_state != Error::ACCEPT_DONE)
+				while (error_state != Error::ACCEPT_DONE)
+				{
+					error_state = client_list[active_connections].Accept(server_fd);
+					if(error_state == Error::NONE)
 					{
-						DebPrint("Accept\n ");
-						error_state = client_list[active_connections].Accept(server_fd);
-						if(error_state == Error::NONE)
-						{
-							active_connections++;
-						}
+						active_connections++;
 					}
 				}
-				else
-				{
-					perror ("Unknown epoll event");
-					error_state = Error::EPOLL_UNKNOWN;
-				}
+				error_state = Error::NONE;
+			}
+			else
+			{
+				perror ("Unknown epoll event");
+				error_state = Error::EPOLL_UNKNOWN;
 			}
 		}
-	  }
-	  else
-	  {
-		  perror ("Error unable to listen");
-	  }
+	}
+	else
+	{
+	  perror ("Setup did not work so can't wait for a connection.");
+	}
 
+	DebPrint("Active Connections:%d and Error State:%d\n",active_connections,error_state);
+	return active_connections;
 }
 
 Error Server::setBlockingMode(Blocking_Mode mode)
