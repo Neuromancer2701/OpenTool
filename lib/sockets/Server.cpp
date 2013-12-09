@@ -19,8 +19,10 @@
 
 #define debug 1
 
-#if debug
-#define DebPrint(fmt, args...) printf(fmt, ## args)
+#if debug          // Make non-zero for debug output
+#define DEBUG(fmt, args...) printf(fmt, ## args)
+#else
+#define DEBUG(fmt, args...)
 #endif
 
 
@@ -94,7 +96,7 @@ Server::Server(int _port)	{
 						}
 						else
 						{
-							DebPrint("Created server object, bind, setblocking mode, Listening, Server FD: %d\n ",server_fd);
+							DEBUG("Created server object, bind, setblocking mode, Listening, Server FD: %d\n ",server_fd);
 						}
 					}
 				}
@@ -118,9 +120,9 @@ int Server::Available() {
 
 	if(error_state == Error::NONE)
 	{
-		DebPrint("Waiting for Epoll, Server FD: %d\n ",server_fd);
+		DEBUG("Waiting for Epoll, Server FD: %d\n ",server_fd);
 		int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
-		DebPrint("Epoll events, %d\n ",epoll_events);
+		DEBUG("Epoll events, %d\n ",epoll_events);
 
 		for (int i = 0; i < epoll_events; i++)
 		{
@@ -160,7 +162,7 @@ int Server::Available() {
 	  perror ("Setup did not work so can't wait for a connection.");
 	}
 
-	DebPrint("Active Connections:%d and Error State:%d\n",active_connections,error_state);
+	DEBUG("Active Connections:%d and Error State:%d\n",active_connections,error_state);
 	return active_connections;
 }
 
