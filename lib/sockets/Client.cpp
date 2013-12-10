@@ -257,7 +257,7 @@ Error Client::EventRead(vector<char>& buffer)
 	else
 	{
 		event.data.fd = client_fd;
-		event.events = EPOLLIN | EPOLLET;
+		event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
 
 		epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, client_fd, &event);
 		if (epoll_status == -1)
@@ -267,7 +267,7 @@ Error Client::EventRead(vector<char>& buffer)
 		}
 		else
 		{
-		    int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
+		    int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, 1000);
 		    for (int i = 0; i < epoll_events; i++)
 			{
 				if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN ))) /*Epoll error occured*/
@@ -275,7 +275,11 @@ Error Client::EventRead(vector<char>& buffer)
 				  perror("epoll wait error\n");
 				  error_state = Error::EPOLL_WAIT;
 				  close (events[i].data.fd);
-
+				}
+				else if(events[i].events & EPOLLRDHUP)
+				{
+					perror("epoll event Client has hung up.\n");
+					error_state = Error::EPOLL_CLOSE;
 				}
 				else if(client_fd == events[i].data.fd)
 				{

@@ -17,23 +17,28 @@ using std::vector;
 enum class Connection_Status {DISCONNECTED = -1, UNKNOWN = 0, CONNECTED = 1};
 enum class Blocking_Mode {Block = 0, NonBlock = 1};
 enum class Error {
-					UNKNOWN 	  = 0,
-					GENERIC 	  = 1,
-					NONE 		  = 2,
-					FCNTL_SET 	  = 3,
-					FCNTL_GET 	  = 4,
-					READ		  = 5,
-					WRITE		  = 6,
-					SOCKET        = 7,
-					BIND	      = 8,
-					ACCEPT		  = 9,
-					LISTEN		  = 10,
-					EPOLL_CREATE  = 11,
-					EPOLL_CTL     = 12,
-					EPOLL_WAIT 	  = 13,
-					EPOLL_UNKNOWN = 14,
-					ACCEPT_DONE   = 15
+					UNKNOWN 	  ,
+					GENERIC 	  ,
+					NONE 		  ,
+					FCNTL_SET 	  ,
+					FCNTL_GET 	  ,
+					READ		  ,
+					WRITE		  ,
+					SOCKET        ,
+					BIND	      ,
+					ACCEPT		  ,
+					LISTEN		  ,
+					EPOLL_CREATE  ,
+					EPOLL_CTL     ,
+					EPOLL_WAIT 	  ,
+					EPOLL_UNKNOWN ,
+					EPOLL_CLOSE	  ,
+					ACCEPT_DONE   ,
+					RETRIES   	  ,
+					TIMEOUT
 				  };
+
+enum class Connection_Type {Client, Server};
 
 static const int MAX_PACKET_LENGTH = 10000;
 

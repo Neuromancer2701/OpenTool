@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <sys/unistd.h>
 #include <sys/fcntl.h>
+#include <netdb.h>
 #include <errno.h>
 #include <cstdio>
 #include <cstring>
@@ -43,11 +44,14 @@ Server::Server(int _port)	{
 	}
     else
     {
+	    int optval = 1;
 		struct sockaddr_in local_address;
 		memset((char *)&local_address, 0, sizeof(local_address));
 		local_address.sin_family = AF_INET;
 		local_address.sin_addr.s_addr = htonl(INADDR_ANY);
 		local_address.sin_port = htons(_port);
+
+	    setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
 		if ( bind(server_fd, (struct sockaddr*)&local_address, sizeof(local_address)) != 0 )
 		{
@@ -96,7 +100,18 @@ Server::Server(int _port)	{
 						}
 						else
 						{
-							DEBUG("Created server object, bind, setblocking mode, Listening, Server FD: %d\n ",server_fd);
+							//DEBUG("Created server object, bind, setblocking mode, Listening, Server FD: %d\n ",server_fd);
+							char port_buffer[32];
+							char ip_buffer[32];
+
+							socklen_t len = sizeof( local_address);
+							int nameinfo = getnameinfo ((const sockaddr *)&local_address, len, ip_buffer, sizeof(ip_buffer), port_buffer, sizeof(port_buffer), NI_NUMERICHOST | NI_NUMERICSERV);
+							if (nameinfo == 0)
+							{
+								string ip_address = string(ip_buffer);
+								port = atoi(port_buffer);
+								DEBUG("Server Ip:%s:%d \n ",ip_address.c_str(), port);
+							}
 						}
 					}
 				}
@@ -120,7 +135,6 @@ int Server::Available() {
 
 	if(error_state == Error::NONE)
 	{
-		DEBUG("Waiting for Epoll, Server FD: %d\n ",server_fd);
 		int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
 		DEBUG("Epoll events, %d\n ",epoll_events);
 
