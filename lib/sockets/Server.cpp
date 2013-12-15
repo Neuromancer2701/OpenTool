@@ -118,6 +118,7 @@ Server::Server(int _port)	{
 			}
 		}
     }
+    server_timer.init();
 }
 
 
@@ -176,7 +177,7 @@ int Server::Available() {
 	  perror ("Setup did not work so can't wait for a connection.");
 	}
 
-	DEBUG("Active Connections:%d and Error State:%d\n",active_connections,error_state);
+	DEBUG("Active Connections:%d and Error State:%d\n", active_connections, error_state);
 	return active_connections;
 }
 

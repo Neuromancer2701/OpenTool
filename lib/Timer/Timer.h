@@ -14,9 +14,11 @@
 class Timer {
 public:
 	Timer(int seconds, int milliseconds, bool singleshot);
+	Timer();
 	virtual ~Timer();
 
 	void start();
+	void init(int seconds, int milliseconds, bool singleshot);
 
 protected:
 	virtual void TimerTask() {};
