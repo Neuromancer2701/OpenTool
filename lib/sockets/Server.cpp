@@ -191,6 +191,7 @@ Error Server::AddClientToEvent(const Client client)
 	event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
 
 	epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, client.client_fd, &event);
+
 	if (epoll_status == -1)
 	{
 		perror ("epoll_create");
