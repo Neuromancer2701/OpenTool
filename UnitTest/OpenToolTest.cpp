@@ -28,31 +28,16 @@ int main() {
 	vector<char>  read_data;
 
 	cout << "This is a Test." << endl;
-	Server Test(12000);
+	Server Test_Server(12000);
 
-	//TestTimer test_timer(20,0);
-
-	//test_timer.start();
 	while(listening)
 	{
 		sleep(1);
-		Test.Available();
-		for(int i = 0;i < Test.active_connections; i++)
-		{
-			read_data.clear();
-			if(Test.client_list[i].EventRead(read_data) == Error::EPOLL_CLOSE)
-			{
-				cout << "Client Closed: " << i << endl;
-				Test.client_list[i].Disconnect();
-				Test.active_connections--;
-			}
-			else
-			{
-				string str(read_data.begin(),read_data.end());
-				cout << "Read Data:"<< str << "from client number " << i << endl;
-			}
+		//Test.Available();
+		//for(int i = 0;i < Test.active_connections; i++)
+		//{
 
-		}
+		//}
 	}
 
 	return 0;

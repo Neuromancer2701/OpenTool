@@ -28,17 +28,17 @@
 		<link>
 			<name>Timer</name>
 			<type>2</type>
-			<location>/home/sk1033/repos/OpenTool/lib/Timer</location>
+			<location>/home/countzero/repos/OpenTool/lib/Timer</location>
 		</link>
 		<link>
 			<name>sockets</name>
 			<type>2</type>
-			<location>/home/sk1033/repos/OpenTool/lib/sockets</location>
+			<location>/home/countzero/repos/OpenTool/lib/sockets</location>
 		</link>
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<location>/home/sk1033/repos/OpenTool/src</location>
+			<location>/home/countzero/repos/OpenTool/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>

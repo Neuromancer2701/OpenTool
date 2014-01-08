@@ -32,7 +32,6 @@ Server::Server() {
 
 	port = 0;
 }
-
 Server::Server(int _port)	{
 
 	active_connections = 0;
@@ -89,7 +88,7 @@ Server::Server(int _port)	{
 					else
 					{
 						event.data.fd = server_fd;
-						event.events = EPOLLIN | EPOLLET;
+						event.events = EPOLLIN;
 
 						epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, server_fd, &event);
 						if (epoll_status == -1)
@@ -118,10 +117,7 @@ Server::Server(int _port)	{
 			}
 		}
     }
-    server_timer.init();
 }
-
-
 Server::~Server() {
 
 	if(server_fd > 0)
@@ -160,10 +156,15 @@ int Server::Available() {
 					error_state = client_list[active_connections].Accept(server_fd);
 					if(error_state == Error::NONE)
 					{
+						AddClientToEvent(client_list[active_connections]);
 						active_connections++;
 					}
 				}
 				error_state = Error::NONE;
+			}
+			else if( isClient(int f)
+			{
+
 			}
 			else
 			{
@@ -180,7 +181,28 @@ int Server::Available() {
 	DEBUG("Active Connections:%d and Error State:%d\n", active_connections, error_state);
 	return active_connections;
 }
+Error Server::AddClientToEvent(const Client client)
+{
+	error_state = Error::UNKNOWN;
+	int epoll_status;
+	struct epoll_event event;
 
+	event.data.fd = client.client_fd;
+	event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
+
+	epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, client.client_fd, &event);
+	if (epoll_status == -1)
+	{
+		perror ("epoll_create");
+		error_state = Error::EPOLL_CTL;
+	}
+	else
+	{
+		error_state = Error::NONE;
+	}
+
+	return error_state;
+}
 Error Server::setBlockingMode(Blocking_Mode mode)
 {
 	error_state = Error::UNKNOWN;

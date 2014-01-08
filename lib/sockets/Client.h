@@ -57,10 +57,9 @@ public:
 	Error Read(vector<char>& buffer);
 	Error Write(vector<char>  buffer);
 	Connection_Status Status(){return status;}
-
+	int client_fd;				//File Descriptor for client connection
 
 protected:
-	int client_fd;				//File Descriptor for client connection
 	Connection_Status status;
 	char retries;				//Number of connect retries
 	static const char max_retries = 5;
