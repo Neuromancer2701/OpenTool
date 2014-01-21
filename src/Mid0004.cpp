@@ -25,18 +25,14 @@ void Mid_0004::BuildMid0004()
 	Length += Error_Size;
 	Packup();
 
-	OutputStream << std::setw(Number_Size) << std::setfill('0') << (int)Number;
-	OutputStream << std::setw(Error_Size) << std::setfill('0') << (int)Error;
+	OutputStream << std::setw(Number_Size) << std::setfill('0') << Number;
+	OutputStream << std::setw(Error_Size) << std::setfill('0') << Error;
 	OutputStream << '\0';
 }
 void Mid_0004::ParseMid0004()
 {
-	int placeholder = 0;
 	Unpack();
-	InputStream >> std::setw(Number_Size)	>> placeholder;
-	Number =  (MID_Number) placeholder;
-
-	InputStream >> std::setw(Error_Size) >> placeholder;
-	Error = (MID_Error) placeholder;
+	InputStream >> std::setw(Number_Size)	>> Number;
+	InputStream >> std::setw(Error_Size) >> Error;
 }
 
