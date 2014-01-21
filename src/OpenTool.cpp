@@ -8,9 +8,7 @@
 #include "OpenTool.h"
 #include "Mids.h"
 #include <exception>
-#include <memory>
 
-using std::unique_ptr;
 
 OpenTool::OpenTool()
 {
@@ -104,15 +102,16 @@ Error OpenTool::MIDInputAction(Header header)
 	 return result;
 }
 
-Error OpenTool::MIDOutputAction(Header* header)
+Error OpenTool::MIDOutputAction(unique_ptr<void> message)
 {
 	 Error result = Error::UNKNOWN;
+	 unique_ptr<Header> header = dynamic_cast<Header*>(message.get());
 
 	 switch(header->Number)
 	 {
 		 case MID_Number::CommunicationStart:
 			  //try{
-			  //unique_ptr<Mid_0001> mid001 = dynamic_cast<Mid_0001 *>(header);
+			  //unique_ptr<Mid_0001> mid001 = dynamic_cast<Mid_0001*>(header.get());
 			  //	  }catch (exception& my_ex) {cout << "Exception: " << my_ex.what();}
 			  break;
 		 case MID_Number::CommunicationStartAcknowledge:

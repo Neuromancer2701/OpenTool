@@ -11,8 +11,12 @@
 #include "Server.h"
 #include "Header.h"
 
+#include <memory>
 #include <functional>
+
 using std::function;
+using std::unique_ptr;
+
 
 class OpenTool {
 public:
@@ -24,7 +28,7 @@ public:
 	Error Listen();
 	Error Disconnect();
 	Error MIDInputAction(Header header);
-	Error MIDOutputAction(Header* header);
+	Error MIDOutputAction(unique_ptr<void> message);
 
 	bool isTimedOut();
 	bool RetriesReached();
