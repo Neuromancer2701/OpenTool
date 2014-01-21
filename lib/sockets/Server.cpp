@@ -130,6 +130,8 @@ Server::~Server() {
 }
 int Server::Available() {
 
+	Client client;
+
 	if(error_state == Error::NONE)
 	{
 		int epoll_events = epoll_wait (event_fd, events, MAX_EVENTS, -1);
@@ -162,9 +164,9 @@ int Server::Available() {
 				}
 				error_state = Error::NONE;
 			}
-			else if( isClient(int f)
+			else if(isClient(events[i].data.fd, client))
 			{
-
+				client.Read(read_buffer);
 			}
 			else
 			{
@@ -181,16 +183,16 @@ int Server::Available() {
 	DEBUG("Active Connections:%d and Error State:%d\n", active_connections, error_state);
 	return active_connections;
 }
-Error Server::AddClientToEvent(const Client client)
+Error Server::AddClientToEvent(Client client)
 {
 	error_state = Error::UNKNOWN;
 	int epoll_status;
 	struct epoll_event event;
 
-	event.data.fd = client.client_fd;
+	event.data.fd = client.get_fd();
 	event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
 
-	epoll_status = epoll_ctl (event_fd, EPOLL_CTL_ADD, client.client_fd, &event);
+	epoll_status = epoll_ctl(event_fd, EPOLL_CTL_ADD, event.data.fd, &event);
 
 	if (epoll_status == -1)
 	{
@@ -239,3 +241,19 @@ Error Server::setBlockingMode(Blocking_Mode mode)
 
 	return error_state;
 }
+
+bool Server::isClient(int fd, Client& client)
+{
+	bool found = false;
+	for(auto local:client_list)
+	{
+		if(local.get_fd() == fd)
+		{
+			client = local;
+			found = true;
+		}
+	}
+
+	return found;
+}
+

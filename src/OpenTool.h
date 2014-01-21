@@ -17,6 +17,10 @@ public:
 
 	Error Connect();
 	Error Listen();
+	Error Disconnect();
+
+	Error MapMIDfunction();
+	Error MIDaction(MessageID mid);
 
 	bool isTimedOut();
 	bool RetriesReached();
@@ -28,6 +32,8 @@ public:
 
 	int timeout;
 	int retries;
+
+	Header openToolHeader;
 
 private:
 	Client client;

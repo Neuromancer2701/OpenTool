@@ -9,7 +9,7 @@
 
 Mid_0003::Mid_0003() {
 	Length = HeaderTotalLength;
-	Number = CommunicationStop;
+	Number = MID_Number::CommunicationStop;
 }
 
 Mid_0003::~Mid_0003() {

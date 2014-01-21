@@ -9,7 +9,7 @@
 
 Mid_9999::Mid_9999() {
 	Length = HeaderTotalLength;
-	Number = KeepAliveMessage;
+	Number = MID_Number::KeepAliveMessage;
 
 }
 

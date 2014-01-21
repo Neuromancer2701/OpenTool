@@ -11,7 +11,7 @@
 
 Mid_0005::Mid_0005() {
 	Length = HeaderTotalLength;
-	Number = CommandAccepted;
+	Number = MID_Number::CommandAccepted;
 }
 
 Mid_0005::~Mid_0005() {

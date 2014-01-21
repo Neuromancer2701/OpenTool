@@ -25,13 +25,13 @@ void Header::Packup()	{
 
 	OutputStream << std::setw(Length_Size) << std::setfill('0') << Length;
 
-	OutputStream << std::setw(Number_Size) << std::setfill('0') << (int)Number;
+	OutputStream << std::setw(Number_Size) << std::setfill('0') << Number;
 
-	OutputStream << std::setw(Revision_Size) << std::setfill('0') << (int)Revision;
+	OutputStream << std::setw(Revision_Size) << std::setfill('0') << Revision;
 
-	OutputStream << std::setw(NoAckFlag_Size) << std::setfill('0') << (int)NoAckFlag;
+	OutputStream << std::setw(NoAckFlag_Size) << std::setfill('0') << static_cast<int>(NoAckFlag);
 
-	OutputStream << std::setw(StationID_Size) << std::setfill('0') << (int)StationID;
+	OutputStream << std::setw(StationID_Size) << std::setfill('0') << StationID;
 
 	OutputStream << std::setw(SpindleID_Size) << std::setfill('0') << SpindleID;
 
@@ -42,17 +42,13 @@ void Header::Packup()	{
 
 void Header::Unpack()	{
 
-	int placeholder = 0;
 	InputStream >> std::setw(Length_Size)	>> Length;
 
-	InputStream >> std::setw(Number_Size)	>> placeholder;
-	Number =  (MID_Number) placeholder;
+	InputStream >> std::setw(Number_Size)	>> Number;
 
-	InputStream >> std::setw(Revision_Size) >> placeholder;
-	Revision = (MID_Revision) placeholder;
+	InputStream >> std::setw(Revision_Size) >> Revision;
 
-	InputStream >> std::setw(NoAckFlag_Size) >> placeholder;
-	NoAckFlag = (bool) placeholder;
+	InputStream >> std::setw(NoAckFlag_Size) >> NoAckFlag;
 
 	InputStream >> std::setw(StationID_Size) >> StationID;
 

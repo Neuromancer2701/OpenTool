@@ -11,7 +11,7 @@
 
 Mid_0004::Mid_0004() {
 	Length = HeaderTotalLength;
-	Number = CommandError;
+	Number = MID_Number::CommandError;
 }
 
 Mid_0004::~Mid_0004() {

@@ -57,10 +57,11 @@ public:
 	Error Read(vector<char>& buffer);
 	Error Write(vector<char>  buffer);
 	Connection_Status Status(){return status;}
-	int client_fd;				//File Descriptor for client connection
+	int get_fd(){return client_fd;}
 
 protected:
 	Connection_Status status;
+	int client_fd;				//File Descriptor for client connection
 	char retries;				//Number of connect retries
 	static const char max_retries = 5;
 	Error setBlockingMode(Blocking_Mode mode);
@@ -69,6 +70,7 @@ private:
 	string ip_address;
 	unsigned short port;
 	static const int MAX_EVENTS = 16;
+
 
 
 

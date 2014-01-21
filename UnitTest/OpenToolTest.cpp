@@ -13,20 +13,9 @@
 
 using namespace std;
 
-
-class TestTimer : public Timer
-{
-public:
-	TestTimer(int seconds, int milliseconds):Timer(seconds, milliseconds, false){};
-	virtual ~TestTimer(){};
-	void TimerTask() {cout << "Woot Timer Task went off!!!" << endl;};
-};
-
 int main() {
 
 	bool listening = true;
-	vector<char>  read_data;
-
 	cout << "This is a Test." << endl;
 	Server Test_Server(12000);
 
@@ -34,10 +23,7 @@ int main() {
 	{
 		sleep(1);
 		//Test.Available();
-		//for(int i = 0;i < Test.active_connections; i++)
-		//{
 
-		//}
 	}
 
 	return 0;

@@ -9,7 +9,7 @@
 
 Mid_0001::Mid_0001() {
 	Length = HeaderTotalLength;
-	Number = CommunicationStart;
+	Number = MID_Number::CommunicationStart;
 }
 
 Mid_0001::~Mid_0001() {

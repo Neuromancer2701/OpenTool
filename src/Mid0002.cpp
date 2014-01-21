@@ -11,7 +11,7 @@
 
 Mid_0002::Mid_0002() {
 	Length = HeaderTotalLength;
-	Number = CommunicationStartAcknowledge;
+	Number = MID_Number::CommunicationStartAcknowledge;
 }
 
 Mid_0002::~Mid_0002() {
@@ -53,24 +53,24 @@ void Mid_0002::PackupMid0002()
 	switch(Revision)
 	{
 		default:
-		case Revision1:
-			Length += Rev1_size;
-			Packup();
-			BuildRevision1();
-			OutputStream << '\0';
-			break;
-		case Revision2:
-			Length += Rev2_size;
-			Packup();
-			BuildRevision2();
-			OutputStream << '\0';
-			break;
-		case Revision3:
-			Length += Rev3_size;
-			Packup();
-			BuildRevision3();
-			OutputStream << '\0';
-			break;
+		case MID_Revision::Revision1:
+			 Length += Rev1_size;
+			 Packup();
+			 BuildRevision1();
+			 OutputStream << '\0';
+			 break;
+		case MID_Revision::Revision2:
+			 Length += Rev2_size;
+			 Packup();
+			 BuildRevision2();
+			 OutputStream << '\0';
+			 break;
+		case MID_Revision::Revision3:
+			 Length += Rev3_size;
+			 Packup();
+			 BuildRevision3();
+			 OutputStream << '\0';
+			 break;
 	}
 }
 
@@ -112,15 +112,15 @@ void Mid_0002::UnPackMid0002()
 	switch(Revision)
 	{
 		default:
-		case Revision1:
-			ParseRevision1();
-			break;
-		case Revision2:
-			ParseRevision2();
-			break;
-		case Revision3:
-			ParseRevision3();
-			break;
+		case MID_Revision::Revision1:
+			 ParseRevision1();
+			 break;
+		case MID_Revision::Revision2:
+			 ParseRevision2();
+			 break;
+		case MID_Revision::Revision3:
+			 ParseRevision3();
+			 break;
 	}
 
 }
