@@ -8,19 +8,23 @@
 #ifndef OPENTOOL_H_
 #define OPENTOOL_H_
 
-#include "Client.h"
+#include "Server.h"
+#include "Header.h"
+
+#include <functional>
+using std::function;
 
 class OpenTool {
 public:
 	OpenTool();
+	OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _retries);
 	virtual ~OpenTool();
 
 	Error Connect();
 	Error Listen();
 	Error Disconnect();
-
-	Error MapMIDfunction();
-	Error MIDaction(MessageID mid);
+	Error MIDInputAction(Header header);
+	Error MIDOutputAction(Header* header);
 
 	bool isTimedOut();
 	bool RetriesReached();
@@ -34,6 +38,13 @@ public:
 	int retries;
 
 	Header openToolHeader;
+
+	function<void()>MID0001Received;
+	function<void()>MID0002Received;
+	function<void()>MID0003Received;
+	function<void()>MID0004Received;
+	function<void()>MID0005Received;
+	function<void()>MID9999Received;
 
 private:
 	Client client;
