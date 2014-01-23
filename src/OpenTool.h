@@ -28,7 +28,7 @@ public:
 	Error Listen();
 	Error Disconnect();
 	Error MIDInputAction(Header header);
-	Error MIDOutputAction(unique_ptr<void> message);
+	Error MIDOutputAction(Header* message);
 
 	bool isTimedOut();
 	bool RetriesReached();

@@ -102,11 +102,12 @@ Error OpenTool::MIDInputAction(Header header)
 	 return result;
 }
 
-Error OpenTool::MIDOutputAction(unique_ptr<void> message)
+Error OpenTool::MIDOutputAction(Header* message)
 {
 	 Error result = Error::UNKNOWN;
-	 unique_ptr<Header> header = dynamic_cast<Header*>(message.get());
+	 Mid_0001* mid001 = dynamic_cast<Mid_0001*>(message);
 
+#if 0
 	 switch(header->Number)
 	 {
 		 case MID_Number::CommunicationStart:
@@ -128,7 +129,7 @@ Error OpenTool::MIDOutputAction(unique_ptr<void> message)
 		 default:
 			  break;
 	 }
-
+#endif
 
 	 return result;
 }
