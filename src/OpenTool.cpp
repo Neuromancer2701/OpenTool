@@ -7,8 +7,15 @@
 
 #include "OpenTool.h"
 #include "Mids.h"
-#include <exception>
 
+#include <exception>
+#include <sstream>
+
+using std::stringstream;
+using std::exception;
+
+
+stringstream Log;
 
 OpenTool::OpenTool()
 {
@@ -21,41 +28,69 @@ OpenTool::OpenTool()
 	openToolHeader.SpindleID = 0;
 }
 
-OpenTool::OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _retries)
+OpenTool::OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _retries, MID_Revision _rev)
 {
 	ip_address = _ip;
 	port = _port;
 	timeout = _timeout;
 	retries = _retries;
 	openToolHeader.SpindleID = spindleNumber;
+	openToolHeader.Revision = version = _rev;
+	SetStationID();
+	SetAckStatus();
 }
 
 OpenTool::~OpenTool()
 {
 
 }
-
+void OpenTool::SetStationID(int station_id)
+{
+	openToolHeader.StationID = station_id;
+}
+void OpenTool::SetAckStatus(bool ack)
+{
+	openToolHeader.NoAckFlag = !ack;
+}
 
 Error OpenTool::Connect()
 {
 	 Error result = Error::UNKNOWN;
+	 client.init(ip_address,port);
 
+	 if(client.Connect() == Connection_Status::CONNECTED)
+	 {
+		 MIDOutputAction(&openToolHeader);
+	 }
 
 	 return result;
 }
 
 Error OpenTool::Disconnect()
 {
- Error result = Error::UNKNOWN;
+	 Error result = Error::UNKNOWN;
 
+	 client.Disconnect();
+	 if(client.Status() == Connection_Status::DISCONNECTED)
+		 result = Error::NONE;
+	 else
+		 result = Error::DISCONNECT;
 
- return result;
+	 return result;
 }
 
 Error OpenTool::Listen()
 {
 	 Error result = Error::UNKNOWN;
+	 Server server;
 
+	 return result;
+}
+Error OpenTool::Send(string data)
+{
+	 Error result = Error::UNKNOWN;
+	 vector<char>  buffer(data.begin(), data.end());
+	 result = client.Write(buffer);
 
 	 return result;
 }
@@ -75,23 +110,77 @@ bool OpenTool::RetriesReached()
 }
 
 
-Error OpenTool::MIDInputAction(Header header)
+Error OpenTool::MIDInputAction(Header* message)
 {
 	 Error result = Error::UNKNOWN;
 
-	 switch(header.Number)
+	 switch(message->Number)
 	 {
 		 case MID_Number::CommunicationStart:
+			  try{
+				  Mid_0001* mid0001 = dynamic_cast<Mid_0001*>(message);
+				  mid0001->Unpack();
+				  MID0001Received(mid0001);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommunicationStartAcknowledge:
+			  try{
+				  Mid_0002* mid0002 = dynamic_cast<Mid_0002*>(message);
+				  mid0002->Unpack();
+				  MID0002Received(mid0002);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommunicationStop:
+			  try{
+				  Mid_0003* mid0003 = dynamic_cast<Mid_0003*>(message);
+				  mid0003->Unpack();
+				  MID0003Received(mid0003);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommandError:
+			  try{
+				  Mid_0004* mid0004 = dynamic_cast<Mid_0004*>(message);
+				  mid0004->Unpack();
+				  MID0004Received(mid0004);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommandAccepted:
+			  try{
+				  Mid_0005* mid0005 = dynamic_cast<Mid_0005*>(message);
+				  mid0005->Unpack();
+				  MID0005Received(mid0005);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::KeepAliveMessage:
+			  try{
+				  Mid_9999* mid9999 = dynamic_cast<Mid_9999*>(message);
+				  mid9999->Unpack();
+				  MID9999Received(mid9999);
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 
 		 default:
@@ -105,31 +194,89 @@ Error OpenTool::MIDInputAction(Header header)
 Error OpenTool::MIDOutputAction(Header* message)
 {
 	 Error result = Error::UNKNOWN;
-	 Mid_0001* mid001 = dynamic_cast<Mid_0001*>(message);
+	 string data("");
 
-#if 0
-	 switch(header->Number)
+	 switch(message->Number)
 	 {
 		 case MID_Number::CommunicationStart:
-			  //try{
-			  //unique_ptr<Mid_0001> mid001 = dynamic_cast<Mid_0001*>(header.get());
-			  //	  }catch (exception& my_ex) {cout << "Exception: " << my_ex.what();}
+			  try{
+				  Mid_0001* mid0001 = dynamic_cast<Mid_0001*>(message);
+				  mid0001->Packup();
+				  data = mid0001->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommunicationStartAcknowledge:
+			  try{
+				  Mid_0002* mid0002 = dynamic_cast<Mid_0002*>(message);
+				  mid0002->Packup();
+				  data = mid0002->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommunicationStop:
+			  try{
+				  Mid_0003* mid0003 = dynamic_cast<Mid_0003*>(message);
+				  mid0003->Packup();
+				  data = mid0003->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommandError:
+			  try{
+				  Mid_0004* mid0004 = dynamic_cast<Mid_0004*>(message);
+				  mid0004->Packup();
+				  data = mid0004->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::CommandAccepted:
+			  try{
+				  Mid_0005* mid0005 = dynamic_cast<Mid_0005*>(message);
+				  mid0005->Packup();
+				  data = mid0005->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 		 case MID_Number::KeepAliveMessage:
+			  try{
+				  Mid_9999* mid9999 = dynamic_cast<Mid_9999*>(message);
+				  mid9999->Packup();
+				  data = mid9999->GetRawOutputString();
+			  }
+			  catch(exception& my_ex)
+			  {
+				  Log << "Exception: " << my_ex.what();
+			  }
 			  break;
 
 		 default:
 			  break;
 	 }
-#endif
+
+	 if(data.length() >= Header::HeaderTotalLength )
+	 {
+		 result = Send(data);
+	 }
+	 else
+	 {
+		 Log << "Opps data shorter than default header.";
+	 }
 
 	 return result;
 }

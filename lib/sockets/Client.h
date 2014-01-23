@@ -35,7 +35,8 @@ enum class Error {
 					EPOLL_CLOSE	  ,
 					ACCEPT_DONE   ,
 					RETRIES   	  ,
-					TIMEOUT
+					TIMEOUT		  ,
+					DISCONNECT
 				  };
 
 enum class Connection_Type {Client, Server};

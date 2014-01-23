@@ -13,6 +13,9 @@
 
 #include <memory>
 #include <functional>
+#include <string>
+
+using std::string;
 
 using std::function;
 using std::unique_ptr;
@@ -21,38 +24,44 @@ using std::unique_ptr;
 class OpenTool {
 public:
 	OpenTool();
-	OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _retries);
+	OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _retries, MID_Revision _rev);
 	virtual ~OpenTool();
 
 	Error Connect();
 	Error Listen();
+	Error Send(string data);
 	Error Disconnect();
-	Error MIDInputAction(Header header);
+	Error MIDInputAction(Header* message);
 	Error MIDOutputAction(Header* message);
 
 	bool isTimedOut();
 	bool RetriesReached();
+	void SetStationID(int station_id = 0);
+	void SetAckStatus(bool ack = true);
 
 	Connection_Type type;
 
 	string ip_address;
 	int port;
+	MID_Revision version;
 
 	int timeout;
 	int retries;
 
+
 	Header openToolHeader;
 
-	function<void()>MID0001Received;
-	function<void()>MID0002Received;
-	function<void()>MID0003Received;
-	function<void()>MID0004Received;
-	function<void()>MID0005Received;
-	function<void()>MID9999Received;
+	function<void(Header* message)>MID0001Received;
+	function<void(Header* message)>MID0002Received;
+	function<void(Header* message)>MID0003Received;
+	function<void(Header* message)>MID0004Received;
+	function<void(Header* message)>MID0005Received;
+	function<void(Header* message)>MID9999Received;
 
 private:
 	Client client;
 	Server server;
+	long connection_time;
 
 
 };
