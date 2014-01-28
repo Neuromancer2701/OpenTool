@@ -14,6 +14,7 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <chrono>
 
 using std::string;
 
@@ -45,24 +46,24 @@ public:
 	int port;
 	MID_Revision version;
 
-	int timeout;
+	double timeout;
 	int retries;
 
 
 	Header openToolHeader;
 
-	function<void(Header* message)>MID0001Received;
-	function<void(Header* message)>MID0002Received;
-	function<void(Header* message)>MID0003Received;
-	function<void(Header* message)>MID0004Received;
-	function<void(Header* message)>MID0005Received;
-	function<void(Header* message)>MID9999Received;
+	function<Error(Header* message)>MID0001Received;
+	function<Error(Header* message)>MID0002Received;
+	function<Error(Header* message)>MID0003Received;
+	function<Error(Header* message)>MID0004Received;
+	function<Error(Header* message)>MID0005Received;
+	function<Error(Header* message)>MID9999Received;
 
 private:
 	Client client;
 	Server server;
 	long connection_time;
-
+	std::chrono::time_point<std::chrono::system_clock> lastSentTime;
 
 };
 

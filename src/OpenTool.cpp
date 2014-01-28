@@ -11,6 +11,7 @@
 #include <exception>
 #include <sstream>
 
+
 using std::stringstream;
 using std::exception;
 
@@ -32,12 +33,13 @@ OpenTool::OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _
 {
 	ip_address = _ip;
 	port = _port;
-	timeout = _timeout;
+	timeout = static_cast<double>(_timeout);
 	retries = _retries;
 	openToolHeader.SpindleID = spindleNumber;
 	openToolHeader.Revision = version = _rev;
 	SetStationID();
 	SetAckStatus();
+	lastSentTime = std::chrono::system_clock::now();
 }
 
 OpenTool::~OpenTool()
@@ -98,6 +100,13 @@ Error OpenTool::Send(string data)
 bool OpenTool::isTimedOut()
 {
 	bool timed_out = false;
+	std::chrono::time_point<std::chrono::system_clock> current_time;
+	current_time = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> seconds = current_time - lastSentTime;
+
+	if(seconds.count() > timeout)
+		timed_out = true;
 
 	return timed_out;
 }
@@ -120,7 +129,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_0001* mid0001 = dynamic_cast<Mid_0001*>(message);
 				  mid0001->Unpack();
-				  MID0001Received(mid0001);
+				  result = MID0001Received(mid0001);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -131,7 +140,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_0002* mid0002 = dynamic_cast<Mid_0002*>(message);
 				  mid0002->Unpack();
-				  MID0002Received(mid0002);
+				  result = MID0002Received(mid0002);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -142,7 +151,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_0003* mid0003 = dynamic_cast<Mid_0003*>(message);
 				  mid0003->Unpack();
-				  MID0003Received(mid0003);
+				  result = MID0003Received(mid0003);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -153,7 +162,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_0004* mid0004 = dynamic_cast<Mid_0004*>(message);
 				  mid0004->Unpack();
-				  MID0004Received(mid0004);
+				  result = MID0004Received(mid0004);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -164,7 +173,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_0005* mid0005 = dynamic_cast<Mid_0005*>(message);
 				  mid0005->Unpack();
-				  MID0005Received(mid0005);
+				  result = MID0005Received(mid0005);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -175,7 +184,7 @@ Error OpenTool::MIDInputAction(Header* message)
 			  try{
 				  Mid_9999* mid9999 = dynamic_cast<Mid_9999*>(message);
 				  mid9999->Unpack();
-				  MID9999Received(mid9999);
+				  result = MID9999Received(mid9999);
 			  }
 			  catch(exception& my_ex)
 			  {
@@ -187,6 +196,8 @@ Error OpenTool::MIDInputAction(Header* message)
 			  break;
 	 }
 
+	 if(result == Error::NONE)
+		 lastSentTime = std::chrono::system_clock::now();
 
 	 return result;
 }

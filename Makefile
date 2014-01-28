@@ -6,20 +6,12 @@ SHARED_LIBRARY = 1
 
 CXX_PP  := clang++
 CXX_CC  := clang
-CXX_AR  := lld
+CXX_AR  := ld
 
 #----------------------------
 # Common Flags for compile.
 
 EXTRA_CFLAGS := -Weverything -fPIC 
-
-TARGET_THREADLIB  := $(TARGET_ROOT)/lib/libpthread.so.0
-#----------------------------
-# Common Flags for link
-
-LD_FLAGS  := -Wl,-rpath,/opt/andrew/lib 
-LD_FLAGS  += -Wl,-rpath-link,$(TARGET_LIB) 
-LD_FLAGS  += -Wl,-rpath-link,$(TARGET_ROOT)/usr/lib
 
 #----------------------------
 # Common C++ compile with flags 
@@ -32,17 +24,19 @@ CXX_APP := $(CXX_PP)
 # for application library path.
 
 LINK_APP := $(CXX_PP) $(LD_FLAGS) 
-#$(TARGET_THREADLIB)
 
 BASE_DIR = .
 
-INC_DIR  = $(BASE_DIR)
-SRC_DIR  = $(BASE_DIR)
-OBJ_DIR  = $(BASE_DIR)
+INC_DIR  := $(BASE_DIR)/src
+INC_DIR  += $(BASE_DIR)/sockets
+INC_DIR  += $(BASE_DIR)/Timer
+
+SRC_DIR  = $(BASE_DIR)/src
+OBJ_DIR  = $(BASE_DIR)/src
 TARGET_LIB = $(BASE_DIR)/lib
 
-SRCS := $(SRC_DIR)/HwMonAPI.c
-SRCS := $(SRC_DIR)/Header.cpp  
+SRCS := $(SRC_DIR)/OpenTool.cpp
+SRCS += $(SRC_DIR)/Header.cpp  
 SRCS += $(SRC_DIR)/MessageID.cpp 
 SRCS += $(SRC_DIR)/Mid0001.cpp 
 SRCS += $(SRC_DIR)/Mid0002.cpp 
