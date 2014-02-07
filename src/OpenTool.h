@@ -21,6 +21,7 @@ using std::string;
 using std::function;
 using std::unique_ptr;
 
+class KeepAliveTimer;
 
 class OpenTool {
 public:
@@ -64,7 +65,7 @@ private:
 	Server server;
 	long connection_time;
 	std::chrono::time_point<std::chrono::system_clock> lastSentTime;
-
+	KeepAliveTimer keep_alive_timer;
 };
 
 #endif /* OPENTOOL_H_ */

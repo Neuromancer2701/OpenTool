@@ -18,6 +18,7 @@ using std::exception;
 
 stringstream Log;
 
+
 OpenTool::OpenTool()
 {
 	ip_address = "";
@@ -62,6 +63,7 @@ Error OpenTool::Connect()
 
 	 if(client.Connect() == Connection_Status::CONNECTED)
 	 {
+		 openToolHeader.Number = MID_Number::CommunicationStart;
 		 MIDOutputAction(&openToolHeader);
 	 }
 
@@ -291,3 +293,15 @@ Error OpenTool::MIDOutputAction(Header* message)
 
 	 return result;
 }
+
+class KeepAliveTimer : public Timer
+{
+public:
+	KeepAliveTimer(int seconds, int milliseconds):Timer(seconds, milliseconds, false){};
+	virtual ~KeepAliveTimer(){};
+	void TimerTask()
+	{
+
+	}
+};
+
