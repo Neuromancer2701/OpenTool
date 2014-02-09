@@ -13,16 +13,18 @@
 
 class Timer {
 public:
-	Timer(int seconds, int milliseconds, bool singleshot);
+	Timer(int _seconds, int _milliseconds, bool singleshot);
 	Timer();
 	virtual ~Timer();
 
 	void start();
+	void reset();
 	void init(int seconds, int milliseconds, bool singleshot);
 
 protected:
 	virtual void TimerTask() {};
-
+	int seconds;
+	int milliseconds;
 
 private:
 	static void signal_handler(int sigNumb, siginfo_t *si, void *uc);

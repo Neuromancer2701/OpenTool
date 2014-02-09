@@ -40,7 +40,18 @@ OpenTool::OpenTool(int spindleNumber, string _ip, int _port, int _timeout, int _
 	openToolHeader.Revision = version = _rev;
 	SetStationID();
 	SetAckStatus();
-	lastSentTime = std::chrono::system_clock::now();
+	if(ip_address.length() > 0)
+	{
+		lastSentTime = std::chrono::system_clock::now(); //Client timeout functionality
+		timer_count = -1;
+	}
+	else
+	{
+		keep_alive_timer.init(timeout, 0, false); //Server KeepAlive
+		keep_alive_timer.start();
+		timer_count = keep_alive_timer.GetCount();
+	}
+
 }
 
 OpenTool::~OpenTool()
@@ -103,12 +114,25 @@ bool OpenTool::isTimedOut()
 {
 	bool timed_out = false;
 	std::chrono::time_point<std::chrono::system_clock> current_time;
-	current_time = std::chrono::system_clock::now();
 
-	std::chrono::duration<double> seconds = current_time - lastSentTime;
+	if(timer_count != -1)//Server side
+	{
+		if(keep_alive_timer.GetCount() > timer_count)
+		{
+			SendKeepAlive();
+			timer_count = keep_alive_timer.GetCount();
+			timed_out =  false;
+		}
+	}
+	else //Client
+	{
+		current_time = std::chrono::system_clock::now();
 
-	if(seconds.count() > timeout)
-		timed_out = true;
+		std::chrono::duration<double> seconds = current_time - lastSentTime;
+
+		if(seconds.count() > timeout)
+			timed_out = true;
+	}
 
 	return timed_out;
 }
@@ -120,6 +144,14 @@ bool OpenTool::RetriesReached()
 	return retries_occured;
 }
 
+void OpenTool::SendKeepAlive()
+{
+	 if(client.Status() == Connection_Status::CONNECTED)
+	 {
+		 openToolHeader.Number = MID_Number::KeepAliveMessage;
+		 MIDOutputAction(&openToolHeader);
+	 }
+}
 
 Error OpenTool::MIDInputAction(Header* message)
 {
@@ -293,15 +325,3 @@ Error OpenTool::MIDOutputAction(Header* message)
 
 	 return result;
 }
-
-class KeepAliveTimer : public Timer
-{
-public:
-	KeepAliveTimer(int seconds, int milliseconds):Timer(seconds, milliseconds, false){};
-	virtual ~KeepAliveTimer(){};
-	void TimerTask()
-	{
-
-	}
-};
-

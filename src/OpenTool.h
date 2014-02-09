@@ -10,6 +10,7 @@
 
 #include "Server.h"
 #include "Header.h"
+#include "KeepAliveTimer.h"
 
 #include <memory>
 #include <functional>
@@ -21,7 +22,6 @@ using std::string;
 using std::function;
 using std::unique_ptr;
 
-class KeepAliveTimer;
 
 class OpenTool {
 public:
@@ -61,10 +61,12 @@ public:
 	function<Error(Header* message)>MID9999Received;
 
 private:
+	void SendKeepAlive();
 	Client client;
 	Server server;
 	long connection_time;
 	std::chrono::time_point<std::chrono::system_clock> lastSentTime;
+	int timer_count;
 	KeepAliveTimer keep_alive_timer;
 };
 

@@ -10,9 +10,10 @@
 #include <cstdio>
 #include <cstring>
 
-Timer::Timer(int seconds, int milliseconds, bool singleshot)
+Timer::Timer(int _seconds, int _milliseconds, bool singleshot)
 {
-	timerSpecs.it_value.tv_sec = seconds;
+	timerSpecs.it_value.tv_sec = seconds = _seconds;
+	milliseconds =_milliseconds;
 	timerSpecs.it_value.tv_nsec = MILLISECONDS_TO_NANOSECONDS * milliseconds;
 
 	if(singleshot)
@@ -99,6 +100,12 @@ void Timer::start()
 		perror("Could not start timer:");
 	}
 }
+void Timer::reset()
+{
+	init( seconds, milliseconds, false);
+	start();
+}
+
 
 void Timer::signal_handler(int sigNumb, siginfo_t *si, void *uc)
 {
