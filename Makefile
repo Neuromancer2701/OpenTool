@@ -67,7 +67,7 @@ LIB := -lrt
 ###############################################################
 # Compiler Flags Additions
 
-CXX_FLAGS = $(INC_DIR) $(GLOBAL_INC) -std=c++0x -Wall -fPIC
+CXX_FLAGS = $(INC_DIR) $(GLOBAL_INC) -std=c++11 -Wall -fPIC
 
 ###################################################################
 # Target groups
