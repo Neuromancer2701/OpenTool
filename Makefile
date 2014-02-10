@@ -43,7 +43,7 @@ INC_DIR  += -I$(SOCKET_DIR)
 INC_DIR  += -I$(TIMER_DIR)
 
 OBJ_DIR  = $(BASE_DIR)/objects
-TARGET_LIB = $(BASE_DIR)/lib
+TARGET_LIB = $(BASE_DIR)/build
 
 SRCS := $(SRC_DIR)/OpenTool.cpp
 SRCS += $(SRC_DIR)/Header.cpp  
