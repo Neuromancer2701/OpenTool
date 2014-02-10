@@ -18,6 +18,10 @@
 #include <cstring>
 
 
+#ifndef SO_REUSEPORT
+#define SO_REUSEPORT	15
+#endif
+
 #define debug 1
 
 #if debug          // Make non-zero for debug output
