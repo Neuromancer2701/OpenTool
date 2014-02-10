@@ -4,14 +4,21 @@ LIBRARYNAME = OpenTool
 LINK_LIBS_IN_SHARED = 0
 SHARED_LIBRARY = 1
 
-CXX_PP  := clang++
-CXX_CC  := clang
+CXX_PP  := g++ #clang++
+CXX_CC  := gcc #clang
 CXX_AR  := ld
 
 #----------------------------
 # Common Flags for compile.
 
-EXTRA_CFLAGS := -Weverything -fPIC 
+GLOBAL_INC =  -I/usr/include
+GLOBAL_INC += -I/usr/include/c++/4.8
+GLOBAL_INC += -I/usr/include/c++/4.8/backward
+GLOBAL_INC += -I/usr/include/x86_64-linux-gnu
+GLOBAL_INC += -I/usr/include/x86_64-linux-gnu/c++/4.8
+GLOBAL_INC += -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include
+GLOBAL_INC += -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed
+GLOBAL_INC += -I/usr/local/include
 
 #----------------------------
 # Common C++ compile with flags 
@@ -23,16 +30,19 @@ CXX_APP := $(CXX_PP)
 # Common linker with flags 
 # for application library path.
 
-LINK_APP := $(CXX_PP) $(LD_FLAGS) 
+LINK_APP := $(CXX_PP)
 
 BASE_DIR = .
 
-INC_DIR  := $(BASE_DIR)/src
-INC_DIR  += $(BASE_DIR)/sockets
-INC_DIR  += $(BASE_DIR)/Timer
+SRC_DIR    = $(BASE_DIR)/src
+SOCKET_DIR = $(BASE_DIR)/lib/sockets
+TIMER_DIR  = $(BASE_DIR)/lib/Timer
 
-SRC_DIR  = $(BASE_DIR)/src
-OBJ_DIR  = $(BASE_DIR)/src
+INC_DIR  := -I$(SRC_DIR)
+INC_DIR  += -I$(SOCKET_DIR)
+INC_DIR  += -I$(TIMER_DIR)
+
+OBJ_DIR  = $(BASE_DIR)/objects
 TARGET_LIB = $(BASE_DIR)/lib
 
 SRCS := $(SRC_DIR)/OpenTool.cpp
@@ -44,14 +54,21 @@ SRCS += $(SRC_DIR)/Mid0003.cpp
 SRCS += $(SRC_DIR)/Mid0004.cpp 
 SRCS += $(SRC_DIR)/Mid0005.cpp 
 SRCS += $(SRC_DIR)/Mid9999.cpp
+SRCS += $(SRC_DIR)/KeepAliveTimer.cpp
+SRCS += $(TIMER_DIR)/Timer.cpp
+SRCS += $(SOCKET_DIR)/Client.cpp
+SRCS += $(SOCKET_DIR)/Server.cpp
 
-OBJS := $(SRCS:.c=.o)
+OBJS := $(SRCS:.cpp=.o)
 
 TARGET := $(TARGET_LIB)/libOpenTool.so
+
+LIB := -lrt
 ###############################################################
 # Compiler Flags Additions
 
-EXTRA_CFLAGS += -I$(INC_DIR)
+CXX_FLAGS = $(INC_DIR) $(GLOBAL_INC) -std=c++11 -Wall -fPIC
+
 ###################################################################
 # Target groups
 # 
@@ -66,11 +83,11 @@ test:
 OpenTool: $(TARGET) 
 
 $(TARGET): $(OBJS) Makefile
-	   $(LINK_APP) -o $(TARGET) $(OBJS) -shared
+	   $(LINK_APP) -o $(TARGET) $(OBJS) $(LIB) -shared
 
 ###################################################################
-.c.o:    
-	$(CXX_APP) $(EXTRA_CFLAGS) -c -o $@ $< 
+.cpp.o:    
+	$(CXX_APP) $(CXX_FLAGS) -c -o $@ $< 
 
 ###################################################################
 clean:
